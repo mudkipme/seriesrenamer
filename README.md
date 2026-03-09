@@ -11,6 +11,10 @@ It lets you:
 - preview the final filenames before renaming anything
 - rename matching subtitle sidecars such as `.en.ass` and `.tc.ass` together with the video file
 
+## Screenshot
+
+![Series Renamer screenshot](docs/screenshot.png)
+
 ## What It Renames
 
 Primary video files are renamed to this format:
