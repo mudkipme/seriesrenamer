@@ -1,0 +1,14 @@
+{
+  "name": "seriesrenamer",
+  "private": true,
+  "version": "0.1.0",
+  "packageManager": "pnpm@10.31.0",
+  "scripts": {
+    "dev:web": "pnpm --filter @seriesrenamer/web dev",
+    "dev:server": "pnpm --filter @seriesrenamer/server dev",
+    "build": "pnpm --filter @seriesrenamer/shared build && pnpm --filter @seriesrenamer/web build && pnpm --filter @seriesrenamer/server build",
+    "start": "pnpm --filter @seriesrenamer/server start",
+    "lint": "pnpm --filter @seriesrenamer/web lint && pnpm --filter @seriesrenamer/server lint",
+    "typecheck": "pnpm --filter @seriesrenamer/shared typecheck && pnpm --filter @seriesrenamer/web typecheck && pnpm --filter @seriesrenamer/server typecheck"
+  }
+}

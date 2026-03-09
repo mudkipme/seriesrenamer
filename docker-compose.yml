@@ -1,0 +1,18 @@
+services:
+  seriesrenamer:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: seriesrenamer:latest
+    container_name: seriesrenamer
+    environment:
+      PORT: 3001
+      MEDIA_ROOT: /media
+      TVDB_API_KEY: ${TVDB_API_KEY}
+      TVDB_PIN: ${TVDB_PIN:-}
+      CORS_ORIGIN: ${CORS_ORIGIN:-http://localhost:3001}
+    ports:
+      - "3001:3001"
+    volumes:
+      - /volume1/media:/media
+    restart: unless-stopped
