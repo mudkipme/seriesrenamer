@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { LoaderCircle, Search, Sparkles, Tv, WandSparkles } from "lucide-react";
+import { type RenameOperation, type RenamePair, type SeasonGroup } from "@seriesrenamer/shared";
 import { FilePickerDialog } from "@/components/file-picker-dialog";
 import { EpisodeRow } from "@/components/episode-row";
 import { Badge } from "@/components/ui/badge";
@@ -40,7 +41,7 @@ export default function App() {
   } = useAppStore();
   const [isFilePickerOpen, setIsFilePickerOpen] = useState(false);
 
-  const orderedEpisodes = showDetail ? showDetail.seasons.flatMap((season) => season.episodes) : [];
+  const orderedEpisodes = showDetail ? showDetail.seasons.flatMap((season: SeasonGroup) => season.episodes) : [];
 
   function openFilePicker() {
     setIsFilePickerOpen(true);
@@ -169,7 +170,7 @@ export default function App() {
                 {loading.show ? <LoaderCircle className="size-4 animate-spin text-primary" /> : null}
               </div>
               <div className="scroll-panel min-h-0 flex-1 space-y-4 overflow-y-auto rounded-[0.9rem] border border-border/70 bg-white/55 p-2.5">
-                {showDetail?.seasons.map((season) => (
+                {showDetail?.seasons.map((season: SeasonGroup) => (
                   <div key={season.seasonNumber}>
                     <div className="mb-2 rounded-md bg-accent px-2.5 py-1.5 text-xs font-semibold text-accent-foreground">{season.label}</div>
                     <div className="space-y-1.5">
@@ -287,7 +288,7 @@ export default function App() {
         >
           <div className="flex h-full min-h-0 flex-col gap-2">
             <div className="flex flex-wrap gap-2">
-              {renamePreview?.warnings.map((warning) => (
+              {renamePreview?.warnings.map((warning: string) => (
                 <Badge key={warning} className="bg-danger/10 text-foreground">
                   {warning}
                 </Badge>
@@ -302,7 +303,7 @@ export default function App() {
                 <p className="text-xs text-muted-foreground">Build a preview once you have matching episode and file selections.</p>
               ) : (
                 <div className="space-y-3">
-                  {renamePreview.pairs.map((pair) => (
+                  {renamePreview.pairs.map((pair: RenamePair) => (
                     <div
                       key={`${pair.episode.id}-${pair.primaryFile.relativePath}`}
                       className="rounded-[0.9rem] border border-border/70 bg-white p-3"
@@ -317,7 +318,7 @@ export default function App() {
                         <Badge>{pair.operations.length} operations</Badge>
                       </div>
                       <div className="mt-2.5 space-y-1.5">
-                        {pair.operations.map((operation) => (
+                        {pair.operations.map((operation: RenameOperation) => (
                           <div
                             key={`${operation.from}->${operation.to}`}
                             className="rounded-lg border border-border/60 bg-background/70 px-2.5 py-1.5 text-xs"
@@ -334,18 +335,19 @@ export default function App() {
             </div>
           </div>
         </Panel>
-      <FilePickerDialog
-        open={isFilePickerOpen}
-        browser={browser}
-        loading={loading.files}
-        selectedFiles={selectedFiles}
-        onBrowse={(path) => void browse(path)}
-        onClose={() => setIsFilePickerOpen(false)}
-        onApply={(files) => {
-          setFiles(files);
-          setIsFilePickerOpen(false);
-        }}
-      />
+      {isFilePickerOpen ? (
+        <FilePickerDialog
+          browser={browser}
+          loading={loading.files}
+          selectedFiles={selectedFiles}
+          onBrowse={(path) => void browse(path)}
+          onClose={() => setIsFilePickerOpen(false)}
+          onApply={(files) => {
+            setFiles(files);
+            setIsFilePickerOpen(false);
+          }}
+        />
+      ) : null}
     </main>
   );
 }

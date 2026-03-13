@@ -13,6 +13,7 @@ export function Panel({ className, title, subtitle, actions, children, ...props 
       <header className="mb-1.5 flex items-center justify-between gap-3">
         <div>
           <h2 className="text-xs font-semibold uppercase tracking-[0.22em] text-muted-foreground">{title}</h2>
+          {subtitle ? <p className="mt-1 text-[11px] text-muted-foreground">{subtitle}</p> : null}
         </div>
         {actions ? <div className="flex items-center gap-2">{actions}</div> : null}
       </header>

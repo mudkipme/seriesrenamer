@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState, type MouseEvent } from "react";
+import { useMemo, useState, type MouseEvent } from "react";
 import { Check, Folder, FolderUp, X } from "lucide-react";
 import { type FileBrowserResponse, type FileEntry, type SelectedFile } from "@seriesrenamer/shared";
 import { Badge } from "@/components/ui/badge";
@@ -7,7 +7,6 @@ import { toSelectedFile } from "@/lib/api";
 import { cn } from "@/lib/utils";
 
 type FilePickerDialogProps = {
-  open: boolean;
   browser: FileBrowserResponse | null;
   loading: boolean;
   selectedFiles: SelectedFile[];
@@ -53,7 +52,6 @@ function FilePickerRow({
 }
 
 export function FilePickerDialog({
-  open,
   browser,
   loading,
   selectedFiles,
@@ -61,38 +59,25 @@ export function FilePickerDialog({
   onClose,
   onApply,
 }: FilePickerDialogProps) {
-  const [pendingFiles, setPendingFiles] = useState<SelectedFile[]>([]);
+  const [pendingFiles, setPendingFiles] = useState<SelectedFile[]>(() => selectedFiles);
   const [lastPendingFilePath, setLastPendingFilePath] = useState<string | null>(null);
 
   const selectableBrowserFiles = useMemo(
-    () => browser?.entries.filter((entry) => entry.kind === "file") ?? [],
+    () => browser?.entries.filter((entry: FileEntry) => entry.kind === "file") ?? [],
     [browser]
   );
-
-  useEffect(() => {
-    if (!open) {
-      return;
-    }
-
-    setPendingFiles(selectedFiles);
-    setLastPendingFilePath(null);
-  }, [open, selectedFiles]);
-
-  if (!open) {
-    return null;
-  }
 
   function togglePendingFile(entry: FileEntry, useRange: boolean) {
     setPendingFiles((current) => {
       if (useRange && lastPendingFilePath) {
-        const anchorIndex = selectableBrowserFiles.findIndex((item) => item.relativePath === lastPendingFilePath);
-        const targetIndex = selectableBrowserFiles.findIndex((item) => item.relativePath === entry.relativePath);
+        const anchorIndex = selectableBrowserFiles.findIndex((item: FileEntry) => item.relativePath === lastPendingFilePath);
+        const targetIndex = selectableBrowserFiles.findIndex((item: FileEntry) => item.relativePath === entry.relativePath);
 
         if (anchorIndex >= 0 && targetIndex >= 0) {
           const startIndex = Math.min(anchorIndex, targetIndex);
           const endIndex = Math.max(anchorIndex, targetIndex);
           const rangeFiles = selectableBrowserFiles.slice(startIndex, endIndex + 1);
-          const selectedByPath = new Map(current.map((item) => [item.relativePath, item]));
+          const selectedByPath = new Map(current.map((item: SelectedFile) => [item.relativePath, item]));
 
           for (const file of rangeFiles) {
             selectedByPath.set(file.relativePath, toSelectedFile(file));
@@ -141,7 +126,7 @@ export function FilePickerDialog({
             {!loading && browser?.entries.length === 0 ? (
               <p className="p-2 text-xs text-muted-foreground">No files or folders found here.</p>
             ) : null}
-            {browser?.entries.map((entry) => (
+            {browser?.entries.map((entry: FileEntry) => (
               <FilePickerRow
                 key={entry.relativePath}
                 entry={entry}
@@ -171,7 +156,7 @@ export function FilePickerDialog({
                 <button
                   key={file.relativePath}
                   type="button"
-                  onClick={() => setPendingFiles((current) => current.filter((item) => item.relativePath !== file.relativePath))}
+                  onClick={() => setPendingFiles((current) => current.filter((item: SelectedFile) => item.relativePath !== file.relativePath))}
                   className="block w-full rounded-lg border border-transparent bg-white px-2.5 py-1.5 text-left transition hover:border-danger/20 hover:bg-danger/5"
                 >
                   <div className="truncate text-sm font-medium">{file.name}</div>
