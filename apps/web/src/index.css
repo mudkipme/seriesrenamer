@@ -33,10 +33,14 @@ body {
   @apply min-h-screen;
 }
 
-.app-shell {
+.app-backdrop {
   background:
     linear-gradient(180deg, rgba(255, 255, 255, 0.78), rgba(232, 224, 214, 0.92)),
     linear-gradient(90deg, rgba(0, 0, 0, 0.02), rgba(255, 255, 255, 0.02));
+}
+
+.app-shell {
+  width: 100%;
 }
 
 .glass-border {

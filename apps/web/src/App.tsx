@@ -42,6 +42,12 @@ export default function App() {
   const [isFilePickerOpen, setIsFilePickerOpen] = useState(false);
 
   const orderedEpisodes = showDetail ? showDetail.seasons.flatMap((season: SeasonGroup) => season.episodes) : [];
+  const hasMatchingSelectionCounts =
+    selectedEpisodes.length > 0 && selectedEpisodes.length === selectedFiles.length;
+  const selectionCountMismatch =
+    selectedEpisodes.length > 0 &&
+    selectedFiles.length > 0 &&
+    selectedEpisodes.length !== selectedFiles.length;
 
   function openFilePicker() {
     setIsFilePickerOpen(true);
@@ -53,7 +59,8 @@ export default function App() {
   }, [loadLanguages]);
 
   return (
-    <main className="app-shell mx-auto flex h-[100dvh] max-w-[1600px] flex-col gap-3 overflow-hidden px-4 py-5 md:px-6 lg:px-8">
+    <div className="app-backdrop min-h-[100dvh] xl:h-[100dvh]">
+      <main className="app-shell mx-auto flex min-h-[100dvh] max-w-[1600px] flex-col gap-3 overflow-visible px-4 py-5 md:px-6 lg:px-8 xl:h-[100dvh] xl:overflow-hidden">
         <header className="glass-border flex-none rounded-[1.1rem] border border-white/70 bg-card/80 px-4 py-2">
           <div className="flex items-center justify-between gap-3">
             <div className="flex items-center gap-2 text-foreground">
@@ -73,10 +80,16 @@ export default function App() {
           </div>
         ) : null}
 
-        <section className="grid min-h-0 flex-1 gap-3 xl:grid-cols-[1.1fr_1.15fr_0.9fr_1.2fr]">
+        <section className="grid gap-3 xl:min-h-0 xl:flex-1 xl:grid-cols-[1.1fr_1.15fr_0.9fr_1.2fr]">
           <Panel title="TV Shows">
             <div className="flex h-full min-h-0 flex-col gap-3">
-              <div className="grid flex-none gap-2">
+              <form
+                className="grid flex-none gap-2"
+                onSubmit={(event) => {
+                  event.preventDefault();
+                  void searchShows();
+                }}
+              >
                 <Input
                   value={query}
                   onChange={(event) => setQuery(event.target.value)}
@@ -91,14 +104,14 @@ export default function App() {
                     ))}
                   </Select>
                   <Button
-                    onClick={() => void searchShows()}
+                    type="submit"
                     disabled={loading.search}
                   >
                     {loading.search ? <LoaderCircle className="size-4 animate-spin" /> : <Search className="size-4" />}
                     Search
                   </Button>
                 </div>
-              </div>
+              </form>
 
               <div className="grid min-h-0 flex-1 gap-3 overflow-hidden lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)] xl:grid-cols-1 xl:grid-rows-[minmax(0,1.15fr)_minmax(0,0.85fr)]">
                 <div className="scroll-panel min-h-0 space-y-1.5 overflow-y-auto rounded-[0.9rem] border border-border/70 bg-white/55 p-1.5">
@@ -262,7 +275,7 @@ export default function App() {
         </section>
 
         <Panel
-          className="h-[11rem] flex-none"
+          className="min-h-[11rem] flex-none xl:h-[11rem]"
           title="Rename Plan"
           actions={
             <>
@@ -270,7 +283,7 @@ export default function App() {
                 variant="secondary"
                 size="sm"
                 onClick={() => void previewRename()}
-                disabled={loading.preview || selectedEpisodes.length === 0 || selectedFiles.length === 0}
+                disabled={loading.preview || !hasMatchingSelectionCounts}
               >
                 {loading.preview ? <LoaderCircle className="size-4 animate-spin" /> : <WandSparkles className="size-4" />}
                 Preview Rename
@@ -278,7 +291,7 @@ export default function App() {
               <Button
                 size="sm"
                 onClick={() => void executeRename()}
-                disabled={loading.rename || !renamePreview?.ready}
+                disabled={loading.rename || !hasMatchingSelectionCounts || !renamePreview?.ready}
               >
                 {loading.rename ? <LoaderCircle className="size-4 animate-spin" /> : <Sparkles className="size-4" />}
                 Apply Rename
@@ -288,12 +301,17 @@ export default function App() {
         >
           <div className="flex h-full min-h-0 flex-col gap-2">
             <div className="flex flex-wrap gap-2">
+              {selectionCountMismatch ? (
+                <Badge className="bg-danger/10 text-foreground">
+                  {`Selected episodes (${selectedEpisodes.length}) and files (${selectedFiles.length}) must match.`}
+                </Badge>
+              ) : null}
               {renamePreview?.warnings.map((warning: string) => (
                 <Badge key={warning} className="bg-danger/10 text-foreground">
                   {warning}
                 </Badge>
               ))}
-              {!renamePreview?.warnings.length && renamePreview ? (
+              {!selectionCountMismatch && !renamePreview?.warnings.length && renamePreview ? (
                 <Badge className="bg-primary/12 text-foreground">Ready to rename</Badge>
               ) : null}
             </div>
@@ -348,6 +366,7 @@ export default function App() {
           }}
         />
       ) : null}
-    </main>
+      </main>
+    </div>
   );
 }

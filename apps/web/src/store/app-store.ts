@@ -206,7 +206,11 @@ export const useAppStore = create<AppState>()(
       },
       async previewRename() {
         const { selectedEpisodes, selectedFiles } = get();
-        if (selectedEpisodes.length === 0 || selectedFiles.length === 0) {
+        if (
+          selectedEpisodes.length === 0 ||
+          selectedFiles.length === 0 ||
+          selectedEpisodes.length !== selectedFiles.length
+        ) {
           return;
         }
 
